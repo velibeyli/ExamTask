@@ -29,7 +29,7 @@ namespace ProductApi.Services.Implementations
             return deletedCategory;
         }
 
-        public async Task<IEnumerable<ProductCategory>> Getall()
+        public async Task<IEnumerable<ProductCategory>> GetAll()
         {
             return await _repo.GetAll();
         }

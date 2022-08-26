@@ -1,5 +1,9 @@
 using Microsoft.EntityFrameworkCore;
 using ProductApi.Db;
+using ProductApi.Repositories.Implementations;
+using ProductApi.Repositories.Interfaces;
+using ProductApi.Services.Implementations;
+using ProductApi.Services.Interfaces;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -13,6 +17,12 @@ builder.Services.AddSwaggerGen();
 ConfigurationManager configuration = builder.Configuration;
 
 builder.Services.AddDbContext<ProductContext>(option => option.UseSqlServer(configuration.GetConnectionString("DefaultConnection")));
+
+builder.Services.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>));
+builder.Services.AddScoped<IProductRepository, ProductRepository>();
+builder.Services.AddScoped<IProductCategoryRepository, ProductCategoryRepository>();
+builder.Services.AddScoped<IProductService, ProductService>();
+builder.Services.AddScoped<IProductCategoryService, ProductCategoryService>();
 
 var app = builder.Build();
 
