@@ -12,7 +12,7 @@ using ProductApi.Db;
 namespace ProductApi.Migrations
 {
     [DbContext(typeof(ProductContext))]
-    [Migration("20220826135845_create_models")]
+    [Migration("20220827063553_create_models")]
     partial class create_models
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)

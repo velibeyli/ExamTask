@@ -1,4 +1,5 @@
-﻿using ProductApi.Models;
+﻿using Microsoft.AspNetCore.Mvc;
+using ProductApi.Models;
 using ProductApi.Repositories.Interfaces;
 using ProductApi.Services.Interfaces;
 
@@ -36,13 +37,30 @@ namespace ProductApi.Services.Implementations
 
         public async Task<Product> GetById(int id)
         {
+
+            //using (var client = new HttpClient())
+            //{
+            //    HttpRequestMessage request = new()
+            //    {
+            //        RequestUri = new Uri($"https://localhost:7280/api/Product/getById/{id}"),
+            //        Method = HttpMethod.Get
+            //    };
+            //    HttpResponseMessage response = await client.GetAsync(request);
+
+            //    var responseData = response.Content.ReadAsStringAsync().Result;
+
+            //    if (responseData.Length !=0)
+            //    {
+            //        throw new Exception("");
+            //    }
+            //}
             var res = await _repo.GetById(x => x.ProductId == id);
             if (res is null)
                 throw new Exception("Mehsul tapilmadi");
             return res;
         }
 
-        public async Task<Product> Update(int id, Product product)
+        public async Task<Product> Update(int id, [FromBody]Product product)
         {
             var res = await _repo.GetById(x => x.ProductId == id);
             if (res is null)

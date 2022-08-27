@@ -1,4 +1,5 @@
-﻿using ProductApi.Models;
+﻿using Microsoft.AspNetCore.Mvc;
+using ProductApi.Models;
 using ProductApi.Repositories.Interfaces;
 using ProductApi.Services.Interfaces;
 
@@ -42,7 +43,7 @@ namespace ProductApi.Services.Implementations
             return result;
         }
 
-        public async Task<ProductCategory> Update(int id, ProductCategory category)
+        public async Task<ProductCategory> Update(int id, [FromBody] ProductCategory category)
         {
             var result = await _repo.GetById(x => x.ProductCategoryId == id);
             if (result is null)
