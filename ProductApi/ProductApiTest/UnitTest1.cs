@@ -1,4 +1,4 @@
-namespace ProductStockApi.Test
+namespace ProductApiTest
 {
     public class UnitTest1
     {
