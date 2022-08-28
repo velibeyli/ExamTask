@@ -4,6 +4,7 @@ using ProductApi.Models;
 using ProductApi.Repositories.Interfaces;
 using ProductApi.Services.Interfaces;
 using ProductApi.Validation;
+using Serilog;
 using System.Web.Mvc;
 
 namespace ProductApi.Services.Implementations
@@ -28,15 +29,17 @@ namespace ProductApi.Services.Implementations
             if (!result.IsValid)
             {
                 throw new ValidationException(result.Errors);
+                Log.Error("Product properties are not valid");
             }
             //validation end
             try
             {
                 return await _productRepository.Create(product);
+                Log.Information("New Product added to database");
             }
             catch (Exception exception)
             {
-                _logger.LogError($"Error while trying to call Create in service class, Error Message = {exception}.");
+                Log.Error($"Error while trying to call Create in service class, Error Message = {exception}.");
                 throw; 
             }
         }
@@ -47,19 +50,25 @@ namespace ProductApi.Services.Implementations
             {
                 var result = await _productRepository.GetById(x => x.ProductId == id);
                 if (result is null)
-                    throw new Exception("Product not found");
+                {
+                    throw new Exception();
+                    Log.Error("Product not found");
+                }
+
+                Log.Warning("Warning! This item will be deleted from database");
                 var deletedProduct = await _productRepository.Delete(result);
                 return deletedProduct;
             }
             catch (Exception exception)
             {
-                _logger.LogError($"Error while trying to call Deleted in service class, Error Message = {exception}.");
+                Log.Error($"Error while trying to call Deleted in service class, Error Message = {exception}.");
                 throw; // if an uncaught exception occurs,return an error response ,with status code 500 (internal server Error)
             }
         }
 
         public async Task<IEnumerable<Product>> GetAll()
         {
+            Log.Information("All products was called");
             return await _productRepository.GetAll();
         }
 
@@ -68,10 +77,11 @@ namespace ProductApi.Services.Implementations
             try
             {
                 return await _productRepository.GetById(x => x.ProductId == id);
+                Log.Information("Successfully operation");
             }
             catch (Exception exception)
             {
-                _logger.LogError($"Error while trying to call GetById in service class, Error Message = {exception}.");
+                Log.Error($"Error while trying to call GetById in service class, Error Message = {exception}.");
                 throw;
             }
         }
@@ -85,13 +95,17 @@ namespace ProductApi.Services.Implementations
             if (!resultValidator.IsValid)
             {
                 throw new ValidationException(resultValidator.Errors);
+                Log.Error("Product properties are not valid");
             }
             //validation end
             try
             {
                 var result = await _productRepository.GetById(x => x.ProductId == id);
                 if (result is null)
-                    throw new Exception("Product not found");
+                {
+                    throw new Exception();
+                    Log.Error("Product not found");
+                }
 
                 Product updatedProduct = new Product()
                 {
@@ -106,7 +120,7 @@ namespace ProductApi.Services.Implementations
             }
             catch (Exception exception)
             {
-                _logger.LogError($"Error while trying to call Update in service class, Error Message = {exception}.");
+                Log.Error($"Error while trying to call Update in service class, Error Message = {exception}.");
                     throw;
             }
 

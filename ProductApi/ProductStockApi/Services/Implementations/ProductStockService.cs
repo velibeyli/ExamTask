@@ -40,6 +40,7 @@ namespace ProductStockApi.Services.Implementations
                     if (!result.IsValid)
                     {
                         throw new ValidationException(result.Errors);
+                        Log.Error("ProductStock properties are not valid");
                     }
                     //validation end
 
@@ -91,7 +92,8 @@ namespace ProductStockApi.Services.Implementations
 
                     if (responseData.IsDeleted == true)
                     {
-                        throw new Exception("This data is already deleted from database!");
+                        Log.Error("This data is already deleted from database!");
+                        throw new Exception();
                     }
                 }
 
@@ -100,7 +102,8 @@ namespace ProductStockApi.Services.Implementations
 
                 if(stock == null)
                 {
-                    throw new Exception("There is not any data with this productId in database");
+                    Log.Error("There is not any data with this productId in database");
+                    throw new Exception();
                 }
 
                 ProductStock product = new ProductStock()
@@ -129,11 +132,15 @@ namespace ProductStockApi.Services.Implementations
                     Product responseData = JsonConvert.DeserializeObject<Product>(response.Content.ReadAsStringAsync().Result);
 
                     if (responseData == null)
-                        throw new Exception("There is not any product with this id in Product database");
+                    {
+                        Log.Error("There is not any product with this id in Product database");
+                        throw new Exception();
+                    }
 
                     if (responseData.IsDeleted == true)
                     {
-                        throw new Exception("This data is already deleted from database!");
+                        Log.Error("This data is already deleted from database!");
+                        throw new Exception();
                     }
                 }
                 var stock = _context.ProductStocks.OrderByDescending(x => x.Id).
@@ -143,17 +150,18 @@ namespace ProductStockApi.Services.Implementations
 
                 if (stock == null)
                 {
-                    throw new Exception("There is not any data with this productId in database");
+                    Log.Error("There is not any data with this productId in database");
+                    throw new Exception();
                 }
                 if (stock.StockCount <= 0)
                 {
                     Log.Error("Out of stock");
-                    throw new Exception("OutOfStock");
+                    throw new Exception();
                 }
                 else if(stock.StockCount < newSoldProductCount)
                 {
                     Log.Error("Out of stock");
-                    throw new Exception("OutOfStock");
+                    throw new Exception();
                 }
 
                 productStock.ProductId = productId;

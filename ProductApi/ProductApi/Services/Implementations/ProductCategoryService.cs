@@ -4,6 +4,7 @@ using ProductApi.Models;
 using ProductApi.Repositories.Interfaces;
 using ProductApi.Services.Interfaces;
 using ProductApi.Validation;
+using Serilog;
 
 namespace ProductApi.Services.Implementations
 {
@@ -26,15 +27,17 @@ namespace ProductApi.Services.Implementations
             if (!result.IsValid)
             {
                 throw new ValidationException(result.Errors);
+                Log.Error("Category not found");
             }
             //validation end
             try
             {
+                Log.Information("New Category was successfully added to database");
                 return await _productCategoryRepository.Create(category);
             }
             catch (Exception exception)
             {
-                _logger.LogError($"Error while trying to call Create in service class, Error Message = {exception}.");
+                Log.Error($"Error while trying to call Create in service class, Error Message = {exception}.");
                 throw;
             }
         }
@@ -46,13 +49,18 @@ namespace ProductApi.Services.Implementations
             {
                 var result = await _productCategoryRepository.GetById(x => x.ProductCategoryId == id);
                 if (result is null)
+                {
                     throw new Exception("Category not found");
+                    Log.Error("Category not found");
+                }
+
+                Log.Warning("Warning! This item will be deleted from database");
                 var category = await _productCategoryRepository.Delete(result);
                 return category;
             }
             catch (Exception exception)
             {
-                _logger.LogError($"Error while trying to call Deleted in service class, Error Message = {exception}.");
+                Log.Error($"Error while trying to call Deleted in service class, Error Message = {exception}.");
                 throw; // if an uncaught exception occurs,return an error response ,with status code 500 (internal server Error)
             }
         }
@@ -69,7 +77,7 @@ namespace ProductApi.Services.Implementations
             }
             catch (Exception exception)
             {
-                _logger.LogError($"Error while trying to call GetById in service class, Error Message = {exception}.");
+                Log.Error($"Error while trying to call GetById in service class, Error Message = {exception}.");
                 throw;
             }
         }
@@ -83,13 +91,17 @@ namespace ProductApi.Services.Implementations
             if (!resultValidator.IsValid)
             {
                 throw new ValidationException(resultValidator.Errors);
+                Log.Error("Category not found");
             }
             //validation end
             try
             {
                 var result = await _productCategoryRepository.GetById(x => x.ProductCategoryId == id);
                 if (result is null)
-                    throw new Exception("Category not found");
+                {
+                    throw new Exception();
+                    Log.Error("Category not found");
+                }
 
                 result.ProductCategoryName = category.ProductCategoryName;
 
@@ -97,7 +109,7 @@ namespace ProductApi.Services.Implementations
             }
             catch (Exception exception)
             {
-                _logger.LogError($"Error while trying to call Update in service class, Error Message = {exception}.");
+                Log.Error($"Error while trying to call Update in service class, Error Message = {exception}.");
                 throw;
             }
 

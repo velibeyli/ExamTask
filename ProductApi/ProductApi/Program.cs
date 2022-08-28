@@ -1,5 +1,6 @@
 using FluentValidation.AspNetCore;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging.Configuration;
 using ProductApi.Db;
 using ProductApi.Models;
 using ProductApi.Repositories.Implementations;
@@ -7,6 +8,8 @@ using ProductApi.Repositories.Interfaces;
 using ProductApi.Services.Implementations;
 using ProductApi.Services.Interfaces;
 using ProductApi.Validation;
+using Serilog;
+using Serilog.Events;
 using System.Reflection;
 using System.Web.WebPages;
 
@@ -22,6 +25,16 @@ builder.Services.AddControllers()
         c.RegisterValidatorsFromAssemblies(AppDomain.CurrentDomain.GetAssemblies());
 
     });
+
+
+builder.Host.UseSerilog((ctx, lc) => lc
+    .WriteTo.File(path: @"Logs\ApplicationLogs.txt",
+            outputTemplate: "{Timestamp:yyyy-MM-dd HH:mm:ss.fff zzz} [{Level:u3}] {Message:lj}{NewLine}{Exception}",
+            rollingInterval: RollingInterval.Day,
+            restrictedToMinimumLevel: LogEventLevel.Information
+            ));
+
+
 
 // builder.Services.AddTransient<IValidator<Product>, ProductValidator>();
 
@@ -52,8 +65,10 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 
+
 app.UseAuthorization();
 
 app.MapControllers();
 
 app.Run();
+
