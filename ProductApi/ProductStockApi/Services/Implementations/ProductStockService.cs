@@ -1,9 +1,11 @@
-﻿using Microsoft.Net.Http.Headers;
+﻿using FluentValidation;
+using Microsoft.Net.Http.Headers;
 using Newtonsoft.Json;
 using ProductStockApi.Db;
 using ProductStockApi.Models;
 using ProductStockApi.Repositories.Interfaces;
 using ProductStockApi.Services.Interfaces;
+using ProductStockApi.Validation;
 using Serilog;
 using System.Text.Json;
 using JsonSerializer = Newtonsoft.Json.JsonSerializer;
@@ -28,35 +30,42 @@ namespace ProductStockApi.Services.Implementations
                 {
                     HttpResponseMessage response = await client.GetAsync($"https://localhost:7280/api/Product/getById/{productId}");
 
-                    ProductStock responseData = JsonConvert.DeserializeObject<ProductStock>(response.Content.ReadAsStringAsync().Result);
+                    ProductStock responseData = JsonConvert.DeserializeObject
+                        <ProductStock>(response.Content.ReadAsStringAsync().Result);
+
+                    //validation begin
+                    var context = new ValidationContext<ProductStock>(responseData);
+                    ProductStockValidator productStockValidator = new ProductStockValidator();
+                    var result = productStockValidator.Validate(context);
+                    if (!result.IsValid)
+                    {
+                        throw new ValidationException(result.Errors);
+                    }
+                    //validation end
 
                     if (responseData.ProductId == null)
                     {
                         Log.Error("Deleted product");
                         throw new Exception("This data is already deleted from database!");
                     }
+
                 }
                 var stock = _context.ProductStocks.OrderByDescending(x => x.Id).
                                     FirstOrDefault(x => x.ProductId == productId);
 
+                ProductStock productStock = new ProductStock();
+
                 if (stock == null)
                 {
-                    Log.Error("Out of stock");
-                    throw new Exception("There is not any product stock with this Id in database");
+                    productStock.ProductId = productId;
+                    productStock.NewAddedProductCount = newAddedProductCount;
+                    productStock.StockCount = productStock.NewAddedProductCount;
+                    return await _repo.Create(productStock);
                 }
 
-
-                ProductStock productStock = new ProductStock();
-                productStock.ProductId = productId;
-                productStock.NewAddedProductCount = newAddedProductCount;
-                productStock.StockCount = stock.StockCount + productStock.NewAddedProductCount;
-
-
-                Log.Information("successfully operation");
-                // string data = JsonConvert.SerializeObject(productStock);
-                // var contentData = new StringContent(data);
-
-                // HttpResponseMessage request = await client.PostAsync("https://localhost:7280/api/Product/create",contentData);
+                    productStock.ProductId = productId;
+                    productStock.NewAddedProductCount = newAddedProductCount;
+                    productStock.StockCount = stock.StockCount + productStock.NewAddedProductCount;
 
                 return await _repo.Create(productStock);
             }
@@ -85,16 +94,20 @@ namespace ProductStockApi.Services.Implementations
                         throw new Exception("This data is already deleted from database!");
                     }
                 }
+
                 var stock = _context.ProductStocks.OrderByDescending(x => x.Id).
                                     FirstOrDefault(x => x.ProductId == productId);
 
-                //Create new Product
+                if(stock == null)
+                {
+                    throw new Exception("There is not any data with this productId in database");
+                }
+
                 ProductStock product = new ProductStock()
                 {
                     ProductId = productId,
                     StockCount = stock.StockCount
                 };
-
 
                 return product;
             }
@@ -115,6 +128,9 @@ namespace ProductStockApi.Services.Implementations
 
                     Product responseData = JsonConvert.DeserializeObject<Product>(response.Content.ReadAsStringAsync().Result);
 
+                    if (responseData == null)
+                        throw new Exception("There is not any product with this id in Product database");
+
                     if (responseData.IsDeleted == true)
                     {
                         throw new Exception("This data is already deleted from database!");
@@ -122,6 +138,13 @@ namespace ProductStockApi.Services.Implementations
                 }
                 var stock = _context.ProductStocks.OrderByDescending(x => x.Id).
                                     FirstOrDefault(x => x.ProductId == productId);
+
+                ProductStock productStock = new ProductStock();
+
+                if (stock == null)
+                {
+                    throw new Exception("There is not any data with this productId in database");
+                }
                 if (stock.StockCount <= 0)
                 {
                     Log.Error("Out of stock");
@@ -133,7 +156,6 @@ namespace ProductStockApi.Services.Implementations
                     throw new Exception("OutOfStock");
                 }
 
-                ProductStock productStock = new ProductStock();
                 productStock.ProductId = productId;
                 productStock.NewSoldProductCount = newSoldProductCount;
                 productStock.StockCount = stock.StockCount - productStock.NewSoldProductCount;

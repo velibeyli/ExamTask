@@ -8,7 +8,7 @@ namespace ProductStockApi.Models
         [Key]
         [Column("productStock_id")]
         public int Id { get; set; }
-        [Column("productStock_name")]
+        [Column("productStock_productId")]
         public int ProductId { get; set; }
         [Column("productStock_newAddedProductCount")]
         public int NewAddedProductCount { get; set; }

@@ -2,6 +2,7 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using ProductStockApi.Db;
 
@@ -10,9 +11,10 @@ using ProductStockApi.Db;
 namespace ProductStockApi.Migrations
 {
     [DbContext(typeof(ProductStockContext))]
-    partial class ProductStockContextModelSnapshot : ModelSnapshot
+    [Migration("20220828142710_edit_model")]
+    partial class edit_model
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -40,7 +42,7 @@ namespace ProductStockApi.Migrations
 
                     b.Property<int>("ProductId")
                         .HasColumnType("int")
-                        .HasColumnName("productStock_productId");
+                        .HasColumnName("productStock_name");
 
                     b.Property<int>("StockCount")
                         .HasColumnType("int")

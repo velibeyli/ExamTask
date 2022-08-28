@@ -12,6 +12,6 @@ namespace ProductApi.Models
         [Column("category_name")]
         public string ProductCategoryName { get; set; }
         [JsonIgnore]
-        public Product? Product { get; set; }
+        public IEnumerable<Product>? Products { get; set; }
     }
 }

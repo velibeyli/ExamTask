@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using ProductApi.Db;
 
@@ -11,9 +12,10 @@ using ProductApi.Db;
 namespace ProductApi.Migrations
 {
     [DbContext(typeof(ProductContext))]
-    partial class ProductContextModelSnapshot : ModelSnapshot
+    [Migration("20220828122142_edited_productModel")]
+    partial class edited_productModel
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -57,7 +59,8 @@ namespace ProductApi.Migrations
 
                     b.HasKey("ProductId");
 
-                    b.HasIndex("ProductCategoryId");
+                    b.HasIndex("ProductCategoryId")
+                        .IsUnique();
 
                     b.ToTable("Products");
                 });
@@ -83,8 +86,8 @@ namespace ProductApi.Migrations
             modelBuilder.Entity("ProductApi.Models.Product", b =>
                 {
                     b.HasOne("ProductApi.Models.ProductCategory", "ProductCategory")
-                        .WithMany("Products")
-                        .HasForeignKey("ProductCategoryId")
+                        .WithOne("Product")
+                        .HasForeignKey("ProductApi.Models.Product", "ProductCategoryId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
@@ -93,7 +96,7 @@ namespace ProductApi.Migrations
 
             modelBuilder.Entity("ProductApi.Models.ProductCategory", b =>
                 {
-                    b.Navigation("Products");
+                    b.Navigation("Product");
                 });
 #pragma warning restore 612, 618
         }

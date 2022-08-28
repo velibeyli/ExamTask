@@ -1,15 +1,30 @@
+using FluentValidation.AspNetCore;
 using Microsoft.EntityFrameworkCore;
 using ProductApi.Db;
+using ProductApi.Models;
 using ProductApi.Repositories.Implementations;
 using ProductApi.Repositories.Interfaces;
 using ProductApi.Services.Implementations;
 using ProductApi.Services.Interfaces;
+using ProductApi.Validation;
+using System.Reflection;
+using System.Web.WebPages;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 
-builder.Services.AddControllers();
+builder.Services.AddControllers()
+    .AddFluentValidation(c =>
+    {
+        c.ImplicitlyValidateChildProperties = true;
+        // using the automatic register method to register the validators
+        c.RegisterValidatorsFromAssemblies(AppDomain.CurrentDomain.GetAssemblies());
+
+    });
+
+// builder.Services.AddTransient<IValidator<Product>, ProductValidator>();
+
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();

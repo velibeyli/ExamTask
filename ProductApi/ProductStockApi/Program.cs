@@ -1,3 +1,4 @@
+using FluentValidation.AspNetCore;
 using Microsoft.EntityFrameworkCore;
 using ProductStockApi.Db;
 using ProductStockApi.Repositories.Implementations;
@@ -10,7 +11,14 @@ using Serilog.Events;
 var builder = WebApplication.CreateBuilder(args);
 
 //Add services to the container
-builder.Services.AddHttpClient();
+builder.Services.AddControllers()
+    .AddFluentValidation(c =>
+    {
+        c.ImplicitlyValidateChildProperties = true;
+        // using the automatic register method to register the validators
+        c.RegisterValidatorsFromAssemblies(AppDomain.CurrentDomain.GetAssemblies());
+
+    });
 
 // Add services to the container.
 

@@ -1,7 +1,9 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using FluentValidation;
+using Microsoft.AspNetCore.Mvc;
 using ProductApi.Models;
 using ProductApi.Repositories.Interfaces;
 using ProductApi.Services.Interfaces;
+using ProductApi.Validation;
 using System.Web.Mvc;
 
 namespace ProductApi.Services.Implementations
@@ -19,6 +21,15 @@ namespace ProductApi.Services.Implementations
 
         public async Task<Product> CreateProduct(Product product)
         {
+            //validation begin
+            var context = new ValidationContext<Product>(product);
+            ProductValidator productValidator = new ProductValidator();
+            var result = productValidator.Validate(context);
+            if (!result.IsValid)
+            {
+                throw new ValidationException(result.Errors);
+            }
+            //validation end
             try
             {
                 return await _productRepository.Create(product);
@@ -67,6 +78,15 @@ namespace ProductApi.Services.Implementations
 
         public async Task<Product> UpdateProduct(int id,Product product)
         {
+            //validation begin
+            var context = new ValidationContext<Product>(product);
+            ProductValidator productValidator = new ProductValidator();
+            var resultValidator = productValidator.Validate(context);
+            if (!resultValidator.IsValid)
+            {
+                throw new ValidationException(resultValidator.Errors);
+            }
+            //validation end
             try
             {
                 var result = await _productRepository.GetById(x => x.ProductId == id);
