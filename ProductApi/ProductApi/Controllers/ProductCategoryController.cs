@@ -20,14 +20,14 @@ namespace ProductApi.Controllers
         [HttpGet("getById")]
         public async Task<ActionResult<ProductCategory>> GetById(int id) =>
             Ok(await _service.GetById(id));
-        [HttpPost("create")]
+        [HttpPost]
         public async Task<ActionResult<ProductCategory>> Create(ProductCategory category) =>
-            Ok(await _service.Create(category));
-        [HttpPut("update")]
+            Ok(await _service.CreateProductCategory(category));
+        [HttpPut]
         public async Task<ActionResult<ProductCategory>> Update(int id, ProductCategory category) =>
-            Ok(await _service.Update(id,category));
-        [HttpDelete("delete")]
+            Ok(await _service.UpdateCategoryById(id,category));
+        [HttpDelete]
         public async Task<ActionResult<ProductCategory>> Delete(int id) =>
-            Ok(await _service.Delete(id));
+            Ok(await _service.DeleteCategoryById(id));
     }
 }

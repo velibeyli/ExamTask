@@ -1,8 +1,7 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
-using System.Text.Json.Serialization;
 
-namespace ProductApi.Models
+namespace ProductStockApi.Models
 {
     public class Product
     {
@@ -11,7 +10,6 @@ namespace ProductApi.Models
         public int ProductId { get; set; }
         [Column("product_name")]
         public string ProductName { get; set; }
-        [ForeignKey("categoryId")]
         [Column("product_categoryId")]
         public int ProductCategoryId { get; set; }
         [Column("product_price")]
@@ -21,8 +19,6 @@ namespace ProductApi.Models
         [Column("product_state")]
         public string State { get; set; }
         [Column("product_isDeleted")]
-        public bool IsDeleted { get; set; }
-        [JsonIgnore]
-        public ProductCategory? ProductCategory { get; set; }
+        public bool IsDeleted { get; set; }        
     }
 }

@@ -7,49 +7,80 @@ namespace ProductApi.Services.Implementations
 {
     public class ProductCategoryService : IProductCategoryService
     {
-        private readonly IProductCategoryRepository _repo;
-        public ProductCategoryService(IProductCategoryRepository repo)
+        private readonly IProductCategoryRepository _productCategoryRepository;
+        private readonly ILogger<ProductService> _logger;
+        public ProductCategoryService(IProductCategoryRepository productCategoryRepository, ILogger<ProductService> logger)
         {
-            _repo = repo;
+            _productCategoryRepository = productCategoryRepository ?? throw new ArgumentNullException(nameof(productCategoryRepository));
+            _logger = logger ?? throw new ArgumentNullException(nameof(logger));
+
+        }
+        public async Task<ProductCategory> CreateProductCategory(ProductCategory category)
+        {
+            try
+            {
+                return await _productCategoryRepository.Create(category);
+            }
+            catch (Exception exception)
+            {
+                _logger.LogError($"Error while trying to call Create in service class, Error Message = {exception}.");
+                throw;
+            }
         }
 
-        public async Task<ProductCategory> Create(ProductCategory category)
+        
+        public async Task<ProductCategory> DeleteCategoryById(int id)
         {
-            var result = await _repo.GetAll(x => x.ProductCategoryName == category.ProductCategoryName);
-            if (result is not null)
-                throw new Exception("Bu adla kategoriya movcuddur");
-            return await _repo.Create(category);
-        }
-
-        public async Task<ProductCategory> Delete(int id)
-        {
-            var result = await _repo.GetById(x => x.ProductCategoryId == id);
-            if (result is null)
-                throw new Exception("Bu ID-li kategoriya movcud deyil");
-            var deletedCategory = await _repo.Delete(result);
-            return deletedCategory;
+            try
+            {
+                var result = await _productCategoryRepository.GetById(x => x.ProductCategoryId == id);
+                if (result is null)
+                    throw new Exception("Category not found");
+                var category = await _productCategoryRepository.Delete(result);
+                return category;
+            }
+            catch (Exception exception)
+            {
+                _logger.LogError($"Error while trying to call Deleted in service class, Error Message = {exception}.");
+                throw; // if an uncaught exception occurs,return an error response ,with status code 500 (internal server Error)
+            }
         }
 
         public async Task<IEnumerable<ProductCategory>> GetAll()
         {
-            return await _repo.GetAll();
+            return await _productCategoryRepository.GetAll();
         }
-
         public async Task<ProductCategory> GetById(int id)
         {
-            var result = await _repo.GetById(x => x.ProductCategoryId == id);
-            if (result is null)
-                throw new Exception("Bu ID-li kategoriya movcud deyil");
-            return result;
+            try
+            {
+                return await _productCategoryRepository.GetById(x => x.ProductCategoryId == id);
+            }
+            catch (Exception exception)
+            {
+                _logger.LogError($"Error while trying to call GetById in service class, Error Message = {exception}.");
+                throw;
+            }
         }
 
-        public async Task<ProductCategory> Update(int id, [FromBody] ProductCategory category)
+        public async Task<ProductCategory> UpdateCategoryById(int id, ProductCategory category)
         {
-            var result = await _repo.GetById(x => x.ProductCategoryId == id);
-            if (result is null)
-                throw new Exception("Bu ID-li kategoriya movcud deyil");
-            result.ProductCategoryName = category.ProductCategoryName;
-            return await _repo.Update(result);
+            try
+            {
+                var result = await _productCategoryRepository.GetById(x => x.ProductCategoryId == id);
+                if (result is null)
+                    throw new Exception("Category not found");
+
+                result.ProductCategoryName = category.ProductCategoryName;
+
+                return await _productCategoryRepository.Update(result);
+            }
+            catch (Exception exception)
+            {
+                _logger.LogError($"Error while trying to call Update in service class, Error Message = {exception}.");
+                throw;
+            }
+
         }
     }
 }

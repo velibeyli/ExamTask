@@ -7,6 +7,7 @@ namespace ProductApi.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [Produces("application/json")]
     public class ProductController : ControllerBase
     {
         private readonly IProductService _service;
@@ -15,20 +16,38 @@ namespace ProductApi.Controllers
             _service = service;
         }
         [HttpGet]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public async Task<ActionResult<IEnumerable<Product>>> GetAll() =>
             Ok(await _service.GetAll());
-        [HttpGet("getById")]
+
+        [HttpGet("getById/{id}")]
         public async Task<ActionResult<Product>> GetById(int id) =>
             Ok(await _service.GetById(id));
-        [HttpPost("create")]
-        public async Task<ActionResult<Product>> Create(Product product) =>
-            Ok(await _service.Create(product));
-        [HttpDelete("delete")]
-        public async Task<ActionResult<Product>> Delete(int id) =>
-            Ok(await _service.Delete(id));
-        [HttpPut("update")]
-        public async Task<ActionResult<Product>> Update(int id, Product product) =>
-            Ok(await _service.Update(id,product));
 
+        [HttpPost]
+        public async Task<ActionResult<Product>> Create(Product product)
+        {
+            if (!ModelState.IsValid)
+                return BadRequest();
+
+            return Ok(await _service.CreateProduct(product));
+
+        }
+
+        [HttpDelete]
+        public async Task<ActionResult<Product>> Delete(int id) =>
+            Ok(await _service.DeleteProductById(id));
+
+        [HttpPut]
+        public async Task<ActionResult<Product>> Update(int id, Product product)
+        {
+            if (!ModelState.IsValid || id <= 0)
+                return BadRequest();
+
+            return Ok(await _service.UpdateProduct(id, product));
+
+        }
     }
 }

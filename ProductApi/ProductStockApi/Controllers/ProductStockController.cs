@@ -14,8 +14,19 @@ namespace ProductStockApi.Controllers
         {
             _service = service;
         }
-        [HttpGet("getStock")]
+        [HttpGet]
         public async Task<ActionResult<ProductStock>> GetStock(int productId) =>
             Ok(await _service.GetStock(productId));
+        [HttpPost]
+
+        public async Task<ActionResult<ProductStock>> AddStock(int productId, int newAddedProductCount) =>
+            Ok(await _service.AddStock(productId,newAddedProductCount));
+
+        [HttpDelete]
+        public async Task<ActionResult<ProductStock>> RemoveStock(int productId, int newSoldProductCount) =>
+            Ok(await _service.RemoveStock(productId,newSoldProductCount));
+
+       
+
     }
 }

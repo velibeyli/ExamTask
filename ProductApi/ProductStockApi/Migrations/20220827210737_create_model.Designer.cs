@@ -11,7 +11,7 @@ using ProductStockApi.Db;
 namespace ProductStockApi.Migrations
 {
     [DbContext(typeof(ProductStockContext))]
-    [Migration("20220827080955_create_model")]
+    [Migration("20220827210737_create_model")]
     partial class create_model
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)

@@ -5,7 +5,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 namespace ProductApi.Migrations
 {
-    public partial class create_models : Migration
+    public partial class create_model : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
@@ -13,43 +13,43 @@ namespace ProductApi.Migrations
                 name: "ProductCategories",
                 columns: table => new
                 {
-                    ProductCategoryId = table.Column<int>(type: "int", nullable: false)
+                    category_Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    ProductCategoryName = table.Column<string>(type: "nvarchar(max)", nullable: false)
+                    category_name = table.Column<string>(type: "nvarchar(max)", nullable: true)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_ProductCategories", x => x.ProductCategoryId);
+                    table.PrimaryKey("PK_ProductCategories", x => x.category_Id);
                 });
 
             migrationBuilder.CreateTable(
                 name: "Products",
                 columns: table => new
                 {
-                    ProductId = table.Column<int>(type: "int", nullable: false)
+                    product_id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    ProductName = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    ProductCategoryId = table.Column<int>(type: "int", nullable: false),
-                    Price = table.Column<double>(type: "float", nullable: false),
-                    CreatedDate = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    State = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    IsDeleted = table.Column<bool>(type: "bit", nullable: false)
+                    product_name = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    product_categoryId = table.Column<int>(type: "int", nullable: false),
+                    product_price = table.Column<double>(type: "float", nullable: false),
+                    product_createdDate = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    product_state = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    product_isDeleted = table.Column<bool>(type: "bit", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Products", x => x.ProductId);
+                    table.PrimaryKey("PK_Products", x => x.product_id);
                     table.ForeignKey(
-                        name: "FK_Products_ProductCategories_ProductCategoryId",
-                        column: x => x.ProductCategoryId,
+                        name: "FK_Products_ProductCategories_product_categoryId",
+                        column: x => x.product_categoryId,
                         principalTable: "ProductCategories",
-                        principalColumn: "ProductCategoryId",
+                        principalColumn: "category_Id",
                         onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateIndex(
-                name: "IX_Products_ProductCategoryId",
+                name: "IX_Products_product_categoryId",
                 table: "Products",
-                column: "ProductCategoryId",
+                column: "product_categoryId",
                 unique: true);
         }
 

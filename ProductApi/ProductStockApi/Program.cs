@@ -4,10 +4,17 @@ using ProductStockApi.Repositories.Implementations;
 using ProductStockApi.Repositories.Interfaces;
 using ProductStockApi.Services.Implementations;
 using ProductStockApi.Services.Interfaces;
+using Serilog;
+using Serilog.Events;
 
 var builder = WebApplication.CreateBuilder(args);
 
+//Add services to the container
+builder.Services.AddHttpClient();
+
 // Add services to the container.
+
+
 
 builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
@@ -23,6 +30,14 @@ builder.Services.AddScoped<IProductStockRepository, ProductStockRepository>();
 builder.Services.AddScoped<IProductStockService, ProductStockService>();
 
 builder.Services.AddHttpClient();
+
+builder.Host.UseSerilog((ctx, lc) => lc    
+    .WriteTo.File(path: @"Logs\ApplicationLogs.txt",
+            outputTemplate: "{Timestamp:yyyy-MM-dd HH:mm:ss.fff zzz} [{Level:u3}] {Message:lj}{NewLine}{Exception}",
+            rollingInterval: RollingInterval.Day,
+            restrictedToMinimumLevel: LogEventLevel.Information
+            ));
+
 
 var app = builder.Build();
 

@@ -2,77 +2,93 @@
 using ProductApi.Models;
 using ProductApi.Repositories.Interfaces;
 using ProductApi.Services.Interfaces;
+using System.Web.Mvc;
 
 namespace ProductApi.Services.Implementations
 {
     public class ProductService : IProductService
     {
-        private readonly IProductRepository _repo;
-        public ProductService(IProductRepository repo)
+        private readonly IProductRepository _productRepository;
+        private readonly ILogger<ProductService> _logger;
+
+        public ProductService(IProductRepository productRepository, ILogger<ProductService> logger)
         {
-            _repo = repo;
+            _productRepository = productRepository ?? throw new ArgumentNullException(nameof(productRepository));
+            _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         }
 
-        public async Task<Product> Create(Product product)
+        public async Task<Product> CreateProduct(Product product)
         {
-            var res = await _repo.GetAll(x => x.ProductName == product.ProductName);
-            if (res is not null)
-                throw new Exception("Bu adla mehsul movcuddur");
-            return await _repo.Create(product);
+            try
+            {
+                return await _productRepository.Create(product);
+            }
+            catch (Exception exception)
+            {
+                _logger.LogError($"Error while trying to call Create in service class, Error Message = {exception}.");
+                throw; 
+            }
         }
 
-        public async Task<Product> Delete(int id)
+        public async Task<Product> DeleteProductById(int id)
         {
-            var res = await _repo.GetById(x => x.ProductId == id);
-            if (res is null)
-                throw new Exception("Mehsul tapilmadi");
-            var deletedProduct = await _repo.Delete(res);
-            return deletedProduct;
+            try
+            {
+                var result = await _productRepository.GetById(x => x.ProductId == id);
+                if (result is null)
+                    throw new Exception("Product not found");
+                var deletedProduct = await _productRepository.Delete(result);
+                return deletedProduct;
+            }
+            catch (Exception exception)
+            {
+                _logger.LogError($"Error while trying to call Deleted in service class, Error Message = {exception}.");
+                throw; // if an uncaught exception occurs,return an error response ,with status code 500 (internal server Error)
+            }
         }
 
         public async Task<IEnumerable<Product>> GetAll()
         {
-            return await _repo.GetAll();
+            return await _productRepository.GetAll();
         }
 
         public async Task<Product> GetById(int id)
         {
-
-            //using (var client = new HttpClient())
-            //{
-            //    HttpRequestMessage request = new()
-            //    {
-            //        RequestUri = new Uri($"https://localhost:7280/api/Product/getById/{id}"),
-            //        Method = HttpMethod.Get
-            //    };
-            //    HttpResponseMessage response = await client.GetAsync(request);
-
-            //    var responseData = response.Content.ReadAsStringAsync().Result;
-
-            //    if (responseData.Length !=0)
-            //    {
-            //        throw new Exception("");
-            //    }
-            //}
-            var res = await _repo.GetById(x => x.ProductId == id);
-            if (res is null)
-                throw new Exception("Mehsul tapilmadi");
-            return res;
+            try
+            {
+                return await _productRepository.GetById(x => x.ProductId == id);
+            }
+            catch (Exception exception)
+            {
+                _logger.LogError($"Error while trying to call GetById in service class, Error Message = {exception}.");
+                throw;
+            }
         }
 
-        public async Task<Product> Update(int id, [FromBody]Product product)
+        public async Task<Product> UpdateProduct(int id,Product product)
         {
-            var res = await _repo.GetById(x => x.ProductId == id);
-            if (res is null)
-                throw new Exception("Mehsul tapilmadi");
-            res.ProductName = product.ProductName;
-            res.Price = product.Price;
-            res.ProductCategoryId = product.ProductCategoryId;
-            res.CreatedDate = product.CreatedDate;
-            res.State = product.State;
-            res.IsDeleted = product.IsDeleted;
+            try
+            {
+                var result = await _productRepository.GetById(x => x.ProductId == id);
+                if (result is null)
+                    throw new Exception("Product not found");
 
-            return await _repo.Update(res);
+                Product updatedProduct = new Product()
+                {
+                    ProductName = product.ProductName,
+                    ProductCategoryId = product.ProductCategoryId,
+                    Price = product.Price,
+                    IsDeleted = product.IsDeleted,
+                    CreatedDate = product.CreatedDate,
+                    State = product.State
+                };
+                return await _productRepository.Update(updatedProduct);
+            }
+            catch (Exception exception)
+            {
+                _logger.LogError($"Error while trying to call Update in service class, Error Message = {exception}.");
+                    throw;
+            }
 
         }
     }

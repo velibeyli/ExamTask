@@ -6,8 +6,8 @@ namespace ProductApi.Services.Interfaces
     {
         Task<IEnumerable<Product>> GetAll();
         Task<Product> GetById(int id);
-        Task<Product> Create(Product product);
-        Task<Product> Delete(int id);
-        Task<Product> Update(int id, Product product);
+        Task<Product> CreateProduct(Product product);
+        Task<Product> DeleteProductById(int id);
+        Task<Product> UpdateProduct(int id, Product product);
     }
 }
